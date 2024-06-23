@@ -21,9 +21,10 @@ public class ReservationService {
             System.out.println("Рабочее место не добавлено");
         }
     }
-    public void getListWorkplace() {
+    public List<Workplace> getListWorkplace() {
         List<Workplace> sortList = workplaceList.stream().sorted(Comparator.comparing(Workplace::getWorkplaceNumber)).collect(Collectors.toList());
         System.out.println(sortList);
+        return sortList;
     }
     public void updateWorkplace(Workplace workplace) {
         if (isExistWorkplace(workplace.getWorkplaceNumber())) {

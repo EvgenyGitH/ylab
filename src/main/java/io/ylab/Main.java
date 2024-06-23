@@ -54,47 +54,67 @@ public class Main {
         while (true) {
             System.out.println("Личный кабинет Пользователя." +
                     "\n Введите номер из меню: " +
-                    "\n 1 - Создать бронирование рабочего места " +
-                    "\n 2 - Посмотреть список бронирования рабочих мест " +
-                    "\n 3 - Изменить бронирование рабочего место " +
-                    "\n 4 - Удалить бронирование рабочего место  " +
-                    "\n 5 - Создать бронирование Конференц-зал " +
-                    "\n 6 - Посмотреть cписок бронирования Конференц-залов " +
-                    "\n 7 - Изменить бронирование Конференц-зал " +
-                    "\n 8 - Удалить бронирование Конференц-зал  " +
+                    "\n 1 - Посмотреть список рабочих мест " +
+                    "\n 2 - Просмотр доступных слотов для бронирования рабочих мест на конкретную дату " +
+                    "\n 3 - Создать бронирование рабочего места " +
+                    "\n 4 - Посмотреть список бронирования рабочих мест " +
+                    "\n 5 - Изменить бронирование рабочего место " +
+                    "\n 6 - Удалить бронирование рабочего место  " +
+                    "\n 7 - Посмотреть список Конференц-зал " +
+                    "\n 8 - Просмотр доступных слотов для бронирования Конференц-зал на конкретную дату " +
+                    "\n 9 - Создать бронирование Конференц-зал " +
+                    "\n 10 - Посмотреть cписок бронирования Конференц-залов " +
+                    "\n 11 - Изменить бронирование Конференц-зал " +
+                    "\n 12 - Удалить бронирование Конференц-зал  " +
                     "\n 0 - Выход");
             if (scanner.hasNextInt()) {
                 menuNumber = scanner.nextInt();
                 switch (menuNumber) {
                     case 1:
+                        System.out.println("Посмотреть список рабочих мест");
+                        getListWorkplaceForUser();
+                        break;
+                    case 2:
+                        System.out.println("Просмотр доступных слотов для бронирования рабочих мест на конкретную дату");
+                        getListBookingWorkplaceByDate();
+                        break;
+                    case 3:
                         System.out.println("Создать бронирование рабочего места");
                         createBookingWorkplace();
                         break;
-                    case 2:
+                    case 4:
                         System.out.println("Посмотреть список бронирования рабочих мест");
                         getListBookingWorkplace();
                         break;
-                    case 3:
+                    case 5:
                         System.out.println("Изменить бронирование рабочего место");
                         updateBookingWorkplace();
                         break;
-                    case 4:
+                    case 6:
                         System.out.println("Удалить бронирование рабочего место");
                         deleteBookingWorkplace();
                         break;
-                    case 5:
+                    case 7:
+                        System.out.println("Посмотреть список Конференц-зал");
+                        getListRoomForUser();
+                        break;
+                    case 8:
+                        System.out.println("Просмотр доступных слотов для бронирования Конференц-зал на конкретную дату");
+                        getListBookingWorkplaceByDate();
+                        break;
+                    case 9:
                         System.out.println("Создать бронирование Конференц-зал");
                         createBookingRoom();
                         break;
-                    case 6:
+                    case 10:
                         System.out.println("Посмотреть cписок бронирования Конференц-залов");
                         getListBookingRoom();
                         break;
-                    case 7:
+                    case 11:
                         System.out.println("Изменить бронирование Конференц-зал");
                         updateBookingRoom();
                         break;
-                    case 8:
+                    case 12:
                         System.out.println("Удалить бронирование Конференц-зал");
                         deleteBookingRoom();
                         break;
@@ -113,6 +133,7 @@ public class Main {
 
         }
     }
+
 
     public static void createUser() {
         Scanner scanner = new Scanner(System.in);
@@ -138,6 +159,26 @@ public class Main {
         User user = new User(name, login, password);
         userService.addUser(user);
         mainMenu();
+    }
+
+    public static void getListWorkplaceForUser() {
+        reservationService.getListWorkplace();
+        userMenu();
+    }
+
+    public static void getListBookingWorkplaceByDate() {
+        Scanner scanner = new Scanner(System.in);
+
+        String bookingDate = "";
+
+        while (bookingDate.isBlank()) {
+            System.out.println("выберите дату в формате: dd.MM.yyyy HH:mm : Пример: 23.06.2024");
+            bookingDate = scanner.nextLine();
+        }
+
+        bookingService.getListBookingWorkplaceByDate(bookingDate);
+        userMenu();
+
     }
 
     public static void createBookingWorkplace() {
@@ -178,8 +219,44 @@ public class Main {
     }
 
     public static void getListBookingWorkplace() {
-        bookingService.getListBookingWorkplace();
+        Scanner scanner = new Scanner(System.in);
+        String action = "";
+        int workplaceNumber = 0;
+        int userId = 0;
+        String bookingDate = "";
+        while (action.isBlank()) {
+            System.out.println("Выберите фильтр: all - показать все, date - на указанную дату, user - по Пользователю ");
+            action = scanner.nextLine();
+        }
+
+        if (action.equals("all")) {
+            userId = 0;
+            bookingDate = "";
+        } else if (action.equals("date")) {
+            while (bookingDate.isBlank()) {
+                System.out.println("выберите дату в формате: dd.MM.yyyy HH:mm : Пример: 23.06.2024");
+                bookingDate = scanner.nextLine();
+            }
+        } else if (action.equals("user")) {
+            while (userId == 0) {
+                System.out.println("Введите Ваш userId:");
+                if (scanner.hasNextInt()) {
+                    userId = scanner.nextInt();
+                } else {
+                    System.out.println("введите целое число. Попробуйте заново");
+                    scanner.next();
+                }
+            }
+        } else {
+            System.out.println("Данный пункт отсутствует");
+            userMenu();
+        }
+
+
+        bookingService.getListBookingWorkplace(userId,bookingDate);
+
         userMenu();
+
     }
 
     public static void updateBookingWorkplace() {
@@ -249,9 +326,14 @@ public class Main {
     }
 
 
+    public static void getListRoomForUser() {
+        reservationService.getListRoom();
+        userMenu();
+    }
+
     public static void createBookingRoom() {
         Scanner scanner = new Scanner(System.in);
-        String roomName ="";
+        String roomName = "";
         int userId = 0;
         String startTime = "";
         while (roomName.isBlank()) {
@@ -289,7 +371,7 @@ public class Main {
 
     public static void updateBookingRoom() {
         Scanner scanner = new Scanner(System.in);
-        String roomName ="";
+        String roomName = "";
         int userId = 0;
         int bookingId = 0;
         String startTime = "";

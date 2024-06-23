@@ -2,12 +2,17 @@ package io.ylab.service;
 
 import io.ylab.model.BookingRoom;
 import io.ylab.model.BookingWorkplace;
+import io.ylab.model.Workplace;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.ylab.utils.Utils.formatterDate;
 
 public class BookingService {
     private int id = 1;
@@ -20,6 +25,26 @@ public class BookingService {
         return id++;
     }
 
+    public void getListBookingWorkplaceByDate(String bookingDate) {
+        LocalDate bookingDateTimeStart = LocalDate.parse(bookingDate, formatterDate);
+        LocalTime time = LocalTime.of(0, 0);
+        LocalDateTime bookingDateTime = bookingDateTimeStart.atTime(time);
+        LocalDateTime bookingDateTimeEnd = bookingDateTime.plusMinutes(1439);
+        ReservationService reservationService = new ReservationService();
+        List<Workplace> workplaceList = reservationService.getListWorkplace();
+        List<BookingWorkplace> sortList = null;
+        for (Workplace workplace : workplaceList) {
+            int workplaceNumber = workplace.getWorkplaceNumber();
+            sortList = bookingWorkplaceList.stream()
+                    .filter(bookingWorkplace -> bookingWorkplace.getWorkplaceNumber() == workplaceNumber)
+                    .filter(bookingWorkplace -> bookingWorkplace.getStartTime().isAfter(bookingDateTime))
+                    .filter(bookingWorkplace -> bookingWorkplace.getEndTime().isBefore(bookingDateTimeEnd))
+                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+        }
+        System.out.println("Слоты все свободны, кроме указанны : " + sortList);
+
+    }
+
     public void createBookingWorkplace(BookingWorkplace bookingWorkplace) {
         if (!isWorkplaceTimeFree(bookingWorkplace)) {
             System.out.println("Выберите другое время");
@@ -30,12 +55,32 @@ public class BookingService {
             System.out.println("Успешно зарегистрировано. Номер бронирования: " + bookingWorkplace.getBookingId());
         }
     }
-    public void getListBookingWorkplace() {
-        List<BookingWorkplace> sortList = bookingWorkplaceList.stream()
-                .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+
+    public void getListBookingWorkplace(int userId, String bookingDate) {
+        List<BookingWorkplace> sortList = null;
+        if (userId == 0 && bookingDate == "") {
+            sortList = bookingWorkplaceList.stream()
+                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+        }
+        if (userId != 0 && bookingDate == "") {
+            sortList = bookingWorkplaceList.stream()
+                    .filter(bookingWorkplace -> bookingWorkplace.getUserId() == userId)
+                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+        }
+        if (userId == 0 && bookingDate != "") {
+            LocalDate bookingDateTimeStart = LocalDate.parse(bookingDate, formatterDate);
+            LocalTime time = LocalTime.of(0, 0);
+            LocalDateTime bookingDateTime = bookingDateTimeStart.atTime(time);
+            LocalDateTime bookingDateTimeEnd = bookingDateTime.plusMinutes(1439);
+            sortList = bookingWorkplaceList.stream()
+                    .filter(bookingWorkplace -> bookingWorkplace.getStartTime().isAfter(bookingDateTime))
+                    .filter(bookingWorkplace -> bookingWorkplace.getEndTime().isBefore(bookingDateTimeEnd))
+                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+        }
 
         System.out.println(sortList);
     }
+
     public void updateBookingWorkplace(int bookingId, BookingWorkplace bookingWorkplace) {
         if (!isWorkplaceTimeFree(bookingWorkplace)) {
             System.out.println("Выберите другое время");
@@ -47,13 +92,14 @@ public class BookingService {
             System.out.println("Изменения внесены. Номер бронирования: " + bookingWorkplace.getBookingId());
         }
     }
-    public void deleteBookingWorkplaceById(int bookingId){
-        if(isExistBookingWorkplaceById(bookingId)){
+
+    public void deleteBookingWorkplaceById(int bookingId) {
+        if (isExistBookingWorkplaceById(bookingId)) {
             BookingWorkplace bookingInList = getBookingWorkplace(bookingId);
             int indexBooking = bookingWorkplaceList.indexOf(bookingInList);
             bookingWorkplaceList.remove(indexBooking);
             System.out.println("Бронирование отменено: " + bookingId);
-        }else {
+        } else {
             System.out.println("Бронирование не найдено");
         }
     }
@@ -75,6 +121,7 @@ public class BookingService {
                 .sorted(Comparator.comparing(BookingRoom::getStartTime)).collect(Collectors.toList());
         System.out.println(sortList);
     }
+
     public void updateBookingRoom(int bookingId, BookingRoom bookingRoom) {
         if (!isRoomTimeFree(bookingRoom)) {
             System.out.println("Выберите другое время");
@@ -86,13 +133,14 @@ public class BookingService {
             System.out.println("Изменения внесены. Номер бронирования: " + bookingRoom.getBookingId());
         }
     }
-    public void deleteBookingRoomById(int bookingId){
-        if(isExistBookingRoomById(bookingId)){
+
+    public void deleteBookingRoomById(int bookingId) {
+        if (isExistBookingRoomById(bookingId)) {
             BookingRoom bookingInList = getBookingRoom(bookingId);
             int indexBooking = bookingRoomList.indexOf(bookingInList);
             bookingRoomList.remove(indexBooking);
             System.out.println("Бронирование отменено: " + bookingId);
-        }else {
+        } else {
             System.out.println("Бронирование не найдено");
         }
     }
@@ -114,6 +162,7 @@ public class BookingService {
         }
         return result;
     }
+
     public boolean isRoomTimeFree(BookingRoom bookingRoom) {
         boolean result = true;
         LocalDateTime startTime = bookingRoom.getStartTime();
@@ -145,6 +194,7 @@ public class BookingService {
         }
         return result;
     }
+
     public boolean isExistBookingRoomById(int bookingId) {
         boolean result = false;
         for (BookingRoom booking : bookingRoomList) {
@@ -169,6 +219,7 @@ public class BookingService {
         }
         return bookingWorkplace;
     }
+
     public BookingRoom getBookingRoom(int bookingId) {
         BookingRoom bookingRoom = null;
         for (BookingRoom booking : bookingRoomList) {
