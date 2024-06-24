@@ -8,9 +8,9 @@ import io.ylab.service.UserService;
 import java.util.Scanner;
 
 public class Main {
-    static UserService userService = new UserService();
-    static ReservationService reservationService = new ReservationService();
-    static BookingService bookingService = new BookingService();
+    public static UserService userService = new UserService();
+    public static ReservationService reservationService = new ReservationService();
+    public static BookingService bookingService = new BookingService();
 
     public static void main(String[] args) {
         mainMenu();
@@ -83,7 +83,7 @@ public class Main {
                         createBookingWorkplace();
                         break;
                     case 4:
-                        System.out.println("Посмотреть список бронирования рабочих мест");
+                        System.out.println("Посмотреть список бронирования рабочих мест (фильтр: all, date, user)");
                         getListBookingWorkplace();
                         break;
                     case 5:
@@ -100,14 +100,14 @@ public class Main {
                         break;
                     case 8:
                         System.out.println("Просмотр доступных слотов для бронирования Конференц-зал на конкретную дату");
-                        getListBookingWorkplaceByDate();
+                        getListBookingRoomByDate();
                         break;
                     case 9:
                         System.out.println("Создать бронирование Конференц-зал");
                         createBookingRoom();
                         break;
                     case 10:
-                        System.out.println("Посмотреть cписок бронирования Конференц-залов");
+                        System.out.println("Посмотреть cписок бронирования Конференц-залов (фильтр: all, date, user)");
                         getListBookingRoom();
                         break;
                     case 11:
@@ -161,6 +161,7 @@ public class Main {
         mainMenu();
     }
 
+    //-----
     public static void getListWorkplaceForUser() {
         reservationService.getListWorkplace();
         userMenu();
@@ -221,7 +222,7 @@ public class Main {
     public static void getListBookingWorkplace() {
         Scanner scanner = new Scanner(System.in);
         String action = "";
-        int workplaceNumber = 0;
+        //   int workplaceNumber = 0;
         int userId = 0;
         String bookingDate = "";
         while (action.isBlank()) {
@@ -251,10 +252,7 @@ public class Main {
             System.out.println("Данный пункт отсутствует");
             userMenu();
         }
-
-
-        bookingService.getListBookingWorkplace(userId,bookingDate);
-
+        bookingService.getListBookingWorkplace(userId, bookingDate);
         userMenu();
 
     }
@@ -325,10 +323,26 @@ public class Main {
         userMenu();
     }
 
+//-----
 
     public static void getListRoomForUser() {
         reservationService.getListRoom();
         userMenu();
+    }
+
+    public static void getListBookingRoomByDate() {
+        Scanner scanner = new Scanner(System.in);
+
+        String bookingDate = "";
+
+        while (bookingDate.isBlank()) {
+            System.out.println("выберите дату в формате: dd.MM.yyyy HH:mm : Пример: 23.06.2024");
+            bookingDate = scanner.nextLine();
+        }
+
+        bookingService.getListBookingRoomByDate(bookingDate);
+        userMenu();
+
     }
 
     public static void createBookingRoom() {
@@ -365,7 +379,39 @@ public class Main {
     }
 
     public static void getListBookingRoom() {
-        bookingService.getListBookingRoom();
+        Scanner scanner = new Scanner(System.in);
+        String action = "";
+        //  String roomName = "";
+        int userId = 0;
+        String bookingDate = "";
+        while (action.isBlank()) {
+            System.out.println("Выберите фильтр: all - показать все, date - на указанную дату, user - по Пользователю ");
+            action = scanner.nextLine();
+        }
+
+        if (action.equals("all")) {
+            userId = 0;
+            bookingDate = "";
+        } else if (action.equals("date")) {
+            while (bookingDate.isBlank()) {
+                System.out.println("выберите дату в формате: dd.MM.yyyy HH:mm : Пример: 23.06.2024");
+                bookingDate = scanner.nextLine();
+            }
+        } else if (action.equals("user")) {
+            while (userId == 0) {
+                System.out.println("Введите Ваш userId:");
+                if (scanner.hasNextInt()) {
+                    userId = scanner.nextInt();
+                } else {
+                    System.out.println("введите целое число. Попробуйте заново");
+                    scanner.next();
+                }
+            }
+        } else {
+            System.out.println("Данный пункт отсутствует");
+            userMenu();
+        }
+        bookingService.getListBookingRoom(userId, bookingDate);
         userMenu();
     }
 

@@ -21,11 +21,13 @@ public class ReservationService {
             System.out.println("Рабочее место не добавлено");
         }
     }
+
     public List<Workplace> getListWorkplace() {
         List<Workplace> sortList = workplaceList.stream().sorted(Comparator.comparing(Workplace::getWorkplaceNumber)).collect(Collectors.toList());
         System.out.println(sortList);
         return sortList;
     }
+
     public void updateWorkplace(Workplace workplace) {
         if (isExistWorkplace(workplace.getWorkplaceNumber())) {
             Workplace workplaceToChange = null;
@@ -41,6 +43,7 @@ public class ReservationService {
             System.out.println("Изменение не добавлено");
         }
     }
+
     public void deleteWorkplace(int numberWorkplace) {
         if (isExistWorkplace(numberWorkplace)) {
             Workplace workplaceToDelete = null;
@@ -65,30 +68,34 @@ public class ReservationService {
             System.out.println("Конференц-зал не добавлен");
         }
     }
-    public void getListRoom() {
-        List<Room>sortList = roomList.stream().sorted(Comparator.comparing(Room::getRoomName)).collect(Collectors.toList());
+
+    public List<Room> getListRoom() {
+        List<Room> sortList = roomList.stream().sorted(Comparator.comparing(Room::getRoomName)).collect(Collectors.toList());
         System.out.println(sortList);
+        return sortList;
     }
+
     public void updateRoom(Room room) {
-        if(isExistRoom(room.getRoomName())){
+        if (isExistRoom(room.getRoomName())) {
             Room roomToUpdate = null;
             for (Room rooInList : roomList) {
-                if (rooInList.getRoomName().equals(room.getRoomName())){
+                if (rooInList.getRoomName().equals(room.getRoomName())) {
                     roomToUpdate = rooInList;
                 }
             }
             int indexRoom = roomList.indexOf(roomToUpdate);
-            roomList.set(indexRoom,room);
+            roomList.set(indexRoom, room);
             System.out.println("Изменение добавлено");
         } else {
             System.out.println("Изменение не добавлено");
         }
     }
+
     public void deleteRoom(String roomName) {
-        if(isExistRoom(roomName)){
+        if (isExistRoom(roomName)) {
             Room roomToDelete = null;
             for (Room rooInList : roomList) {
-                if (rooInList.getRoomName().equals(roomName)){
+                if (rooInList.getRoomName().equals(roomName)) {
                     roomToDelete = rooInList;
                 }
             }
@@ -110,10 +117,11 @@ public class ReservationService {
         }
         return result;
     }
+
     public boolean isExistRoom(String roomName) {
         boolean result = false;
         for (Room room : roomList) {
-            if(room.getRoomName().equals(roomName)){
+            if (room.getRoomName().equals(roomName)) {
                 System.out.println("Конференц-зал существует");
                 result = true;
             }

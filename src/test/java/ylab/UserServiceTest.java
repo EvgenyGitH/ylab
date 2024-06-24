@@ -1,4 +1,3 @@
-/*
 package ylab;
 
 import io.ylab.model.User;
@@ -9,11 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -21,19 +18,16 @@ public class UserServiceTest {
     @InjectMocks
     UserService userService;
     @Mock
-    List<User> userList = new ArrayList<>();
+    List<User> userList;
+
 
     @Test
     public void addUserTest() {
         User user = new User("Bob", "tester", "bobpassword");
-        when(userList.add(user))
-                .thenReturn(true);
         userService.addUser(user);
-        //    Assertions.assertEquals(1, userList.size());
-
-        assertThat(userService.addUser(user)).isEqualTo(true);
+        verify(userList).add(user);
     }
 
 
 }
-*/
+

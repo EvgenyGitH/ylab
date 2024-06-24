@@ -2,6 +2,7 @@ package io.ylab.service;
 
 import io.ylab.model.BookingRoom;
 import io.ylab.model.BookingWorkplace;
+import io.ylab.model.Room;
 import io.ylab.model.Workplace;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ylab.Main.reservationService;
 import static io.ylab.utils.Utils.formatterDate;
 
 public class BookingService {
@@ -25,24 +27,47 @@ public class BookingService {
         return id++;
     }
 
-    public void getListBookingWorkplaceByDate(String bookingDate) {
+    public List<BookingWorkplace> getListBookingWorkplaceByDate(String bookingDate) {
         LocalDate bookingDateTimeStart = LocalDate.parse(bookingDate, formatterDate);
         LocalTime time = LocalTime.of(0, 0);
         LocalDateTime bookingDateTime = bookingDateTimeStart.atTime(time);
         LocalDateTime bookingDateTimeEnd = bookingDateTime.plusMinutes(1439);
-        ReservationService reservationService = new ReservationService();
         List<Workplace> workplaceList = reservationService.getListWorkplace();
-        List<BookingWorkplace> sortList = null;
+        List<BookingWorkplace> sortList = new ArrayList<>();
         for (Workplace workplace : workplaceList) {
             int workplaceNumber = workplace.getWorkplaceNumber();
-            sortList = bookingWorkplaceList.stream()
+            List<BookingWorkplace> bookingSortList = bookingWorkplaceList.stream()
                     .filter(bookingWorkplace -> bookingWorkplace.getWorkplaceNumber() == workplaceNumber)
                     .filter(bookingWorkplace -> bookingWorkplace.getStartTime().isAfter(bookingDateTime))
                     .filter(bookingWorkplace -> bookingWorkplace.getEndTime().isBefore(bookingDateTimeEnd))
-                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(BookingWorkplace::getStartTime)).toList();
+            printSlotBookingWorkplace(workplaceNumber, bookingDateTime, bookingSortList);
+            if(!bookingSortList.isEmpty()){
+                sortList.addAll(bookingSortList);
+            }
         }
-        System.out.println("Слоты все свободны, кроме указанны : " + sortList);
 
+        return sortList;
+    }
+
+    public void printSlotBookingWorkplace(int workplaceNumber, LocalDateTime bookingDateTime, List<BookingWorkplace> bookingSortList) {
+        LocalDateTime startDay = bookingDateTime.plusMinutes(540);
+        LocalDateTime endDay = bookingDateTime.plusMinutes(1260);
+        while (startDay.isBefore(endDay)) {
+            boolean result = false;
+            for (BookingWorkplace booking : bookingSortList) {
+                if (booking.getStartTime().equals(startDay)) {
+                    result = true;
+                    break;
+                }
+            }
+            if (result) {
+                System.out.println("Рабочее место: " + workplaceNumber + " время: " + startDay + " - " + startDay.plusMinutes(59) + " занято");
+            } else {
+                System.out.println("Рабочее место: " + workplaceNumber + " время: " + startDay + " - " + startDay.plusMinutes(59) + " свободно");
+            }
+            startDay = startDay.plusMinutes(60);
+        }
     }
 
     public void createBookingWorkplace(BookingWorkplace bookingWorkplace) {
@@ -104,6 +129,49 @@ public class BookingService {
         }
     }
 
+//---
+
+    public List<BookingRoom> getListBookingRoomByDate(String bookingDate) {
+        LocalDate bookingDateTimeStart = LocalDate.parse(bookingDate, formatterDate);
+        LocalTime time = LocalTime.of(0, 0);
+        LocalDateTime bookingDateTime = bookingDateTimeStart.atTime(time);
+        LocalDateTime bookingDateTimeEnd = bookingDateTime.plusMinutes(1439);
+        List<Room> roomList = reservationService.getListRoom();
+        List<BookingRoom> sortList = new ArrayList<>();
+        for (Room room : roomList) {
+            String roomName = room.getRoomName();
+            List<BookingRoom> bookingSortList = bookingRoomList.stream()
+                    .filter(booking -> booking.getRoomName().equals(roomName))
+                    .filter(booking -> booking.getStartTime().isAfter(bookingDateTime))
+                    .filter(booking -> booking.getEndTime().isBefore(bookingDateTimeEnd))
+                    .sorted(Comparator.comparing(BookingRoom::getStartTime)).toList();
+            printSlotBookingRoom(roomName, bookingDateTime, bookingSortList);
+            if(!bookingSortList.isEmpty()){
+                sortList.addAll(bookingSortList);
+            }
+        }
+        return sortList;
+    }
+
+    public void printSlotBookingRoom(String roomName, LocalDateTime bookingDateTime, List<BookingRoom> bookingSortList) {
+        LocalDateTime startDay = bookingDateTime.plusMinutes(540);
+        LocalDateTime endDay = bookingDateTime.plusMinutes(1260);
+        while (startDay.isBefore(endDay)) {
+            boolean result = false;
+            for (BookingRoom booking : bookingSortList) {
+                if (booking.getStartTime().equals(startDay)) {
+                    result = true;
+                    break;
+                }
+            }
+            if (result) {
+                System.out.println("Конференц-Зал: " + roomName + " время: " + startDay + " - " + startDay.plusMinutes(59) + " занято");
+            } else {
+                System.out.println("Конференц-Зал: " + roomName + " время: " + startDay + " - " + startDay.plusMinutes(59) + " свободно");
+            }
+            startDay = startDay.plusMinutes(60);
+        }
+    }
 
     public void createBookingRoom(BookingRoom bookingRoom) {
         if (!isRoomTimeFree(bookingRoom)) {
@@ -116,9 +184,27 @@ public class BookingService {
         }
     }
 
-    public void getListBookingRoom() {
-        List<BookingRoom> sortList = bookingRoomList.stream()
-                .sorted(Comparator.comparing(BookingRoom::getStartTime)).collect(Collectors.toList());
+    public void getListBookingRoom(int userId, String bookingDate) {
+        List<BookingRoom> sortList = null;
+        if (userId == 0 && bookingDate == "") {
+            sortList = bookingRoomList.stream()
+                    .sorted(Comparator.comparing(BookingRoom::getStartTime)).collect(Collectors.toList());
+        }
+        if (userId != 0 && bookingDate == "") {
+            sortList = bookingRoomList.stream()
+                    .filter(bookingRoom -> bookingRoom.getUserId() == userId)
+                    .sorted(Comparator.comparing(BookingRoom::getStartTime)).collect(Collectors.toList());
+        }
+        if (userId == 0 && bookingDate != "") {
+            LocalDate bookingDateTimeStart = LocalDate.parse(bookingDate, formatterDate);
+            LocalTime time = LocalTime.of(0, 0);
+            LocalDateTime bookingDateTime = bookingDateTimeStart.atTime(time);
+            LocalDateTime bookingDateTimeEnd = bookingDateTime.plusMinutes(1439);
+            sortList = bookingRoomList.stream()
+                    .filter(bookingRoom -> bookingRoom.getStartTime().isAfter(bookingDateTime))
+                    .filter(bookingRoom -> bookingRoom.getEndTime().isBefore(bookingDateTimeEnd))
+                    .sorted(Comparator.comparing(BookingRoom::getStartTime)).collect(Collectors.toList());
+        }
         System.out.println(sortList);
     }
 

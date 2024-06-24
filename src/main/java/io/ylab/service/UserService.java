@@ -7,7 +7,7 @@ import java.util.List;
 
 public class UserService {
     private int id = 1;
-    List<User> userList = new ArrayList<>();
+    public List<User> userList = new ArrayList<>();
 
     protected int creatId() {
         return id++;
@@ -46,6 +46,9 @@ public class UserService {
 
     public boolean isExistsLogin(User user) {
         boolean result = false;
+        if(userList.size()==0){
+            return result;
+        }
         for (User userInList : userList) {
             if (userInList.getLogin().equals(user.getLogin())) {
                 System.out.println("Пользователь с указанным Логином существует");
