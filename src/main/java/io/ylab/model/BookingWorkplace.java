@@ -7,13 +7,13 @@ import static io.ylab.utils.Utils.formatter;
 public class BookingWorkplace {
     private int bookingId;
     private int workplaceNumber;
-    private int userId;
+    private String userLogin;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    public BookingWorkplace(int workplaceNumber, int userId, String startTime) {
+    public BookingWorkplace(int workplaceNumber, String userLogin, String startTime) {
         this.workplaceNumber = workplaceNumber;
-        this.userId = userId;
+        this.userLogin = userLogin;
         this.startTime = LocalDateTime.parse(startTime, formatter);
     }
 
@@ -33,12 +33,12 @@ public class BookingWorkplace {
         this.workplaceNumber = workplaceNumber;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getUserLogin() {
+        return userLogin;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
     }
 
     public LocalDateTime getStartTime() {
@@ -62,7 +62,7 @@ public class BookingWorkplace {
         return "BookingWorkplace{" +
                 "bookingId=" + bookingId +
                 ", workplaceNumber=" + workplaceNumber +
-                ", userId=" + userId +
+                ", userLogin='" + userLogin + '\'' +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 '}';

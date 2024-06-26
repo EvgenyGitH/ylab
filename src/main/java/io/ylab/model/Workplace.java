@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Workplace {
+    private int id;
     private int workplaceNumber;
     private String description;
-    List<BookingWorkplace> reservWorkplaceList = new ArrayList<>();
+    //List<BookingWorkplace> reservWorkplaceList = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -19,6 +20,14 @@ public class Workplace {
     public Workplace(int workplaceNumber, String description) {
         this.workplaceNumber = workplaceNumber;
         this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getWorkplaceNumber() {
@@ -37,11 +46,11 @@ public class Workplace {
         this.description = description;
     }
 
-    public List<BookingWorkplace> getReservWorkplaceList() {
+  /*  public List<BookingWorkplace> getReservWorkplaceList() {
         return reservWorkplaceList;
     }
 
     public void setReservWorkplaceList(List<BookingWorkplace> reservWorkplaceList) {
         this.reservWorkplaceList = reservWorkplaceList;
-    }
+    }*/
 }

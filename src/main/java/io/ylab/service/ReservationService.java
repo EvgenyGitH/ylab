@@ -3,130 +3,68 @@ package io.ylab.service;
 import io.ylab.model.Room;
 import io.ylab.model.Workplace;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-public class ReservationService {
+/**
+ * interface ReservationService работы с рабочими местами и залами.
+ * Позволяет создавать, обновлять, удалять и проверять существование рабочих мест и залов.
+ */
 
-    List<Room> roomList = new ArrayList<>();
-    List<Workplace> workplaceList = new ArrayList<>();
+public interface ReservationService {
+    /**
+     * Генерирует id рабочих мест и залов
+     * @return id рабочих мест и залов
+     */
+    int createId();
 
-    public void createWorkplace(Workplace workplace) {
-        if (!isExistWorkplace(workplace.getWorkplaceNumber())) {
-            workplaceList.add(workplace);
-            System.out.println("Рабочее место добавлено");
-        } else {
-            System.out.println("Рабочее место не добавлено");
-        }
-    }
+    /**
+     * Создает рабочее место
+     * @param workplaceNumber номер рабочего места.
+     * @param description описание рабочего места.
+     */
 
-    public List<Workplace> getListWorkplace() {
-        List<Workplace> sortList = workplaceList.stream().sorted(Comparator.comparing(Workplace::getWorkplaceNumber)).collect(Collectors.toList());
-        System.out.println(sortList);
-        return sortList;
-    }
+    void createWorkplace(int workplaceNumber, String description);
 
-    public void updateWorkplace(Workplace workplace) {
-        if (isExistWorkplace(workplace.getWorkplaceNumber())) {
-            Workplace workplaceToChange = null;
-            for (Workplace place : workplaceList) {
-                if (place.getWorkplaceNumber() == workplace.getWorkplaceNumber()) {
-                    workplaceToChange = place;
-                }
-            }
-            int indexWorkplace = workplaceList.indexOf(workplaceToChange);
-            workplaceList.set(indexWorkplace, workplace);
-            System.out.println("Изменение добавлено");
-        } else {
-            System.out.println("Изменение не добавлено");
-        }
-    }
+    /**
+     * Возвращает список(Map) рабочих мест.
+     * @return Map, где ключом номер рабочего места, значением -  Workplace.
+     */
 
-    public void deleteWorkplace(int numberWorkplace) {
-        if (isExistWorkplace(numberWorkplace)) {
-            Workplace workplaceToDelete = null;
-            for (Workplace place : workplaceList) {
-                if (place.getWorkplaceNumber() == numberWorkplace) {
-                    workplaceToDelete = place;
-                }
-            }
-            int indexWorkplace = workplaceList.indexOf(workplaceToDelete);
-            workplaceList.remove(indexWorkplace);
-            System.out.println("Рабочее место удалено");
-        } else {
-            System.out.println("Рабочее место не удалено");
-        }
-    }
+    Map<Integer, Workplace> getListWorkplace();
 
-    public void createRoom(Room room) {
-        if (!isExistRoom(room.getRoomName())) {
-            roomList.add(room);
-            System.out.println("Конференц-зал добавлен");
-        } else {
-            System.out.println("Конференц-зал не добавлен");
-        }
-    }
+    /**
+     * Обновляет описание рабочего места.
+     * @param workplaceNumber номер рабочего места для обновления.
+     * @param description новое описание рабочего места.
+     */
+    void updateWorkplace(int workplaceNumber, String description);
 
-    public List<Room> getListRoom() {
-        List<Room> sortList = roomList.stream().sorted(Comparator.comparing(Room::getRoomName)).collect(Collectors.toList());
-        System.out.println(sortList);
-        return sortList;
-    }
+    /**
+     * Удаляет рабочее место с указанным номером.
+     * @param numberWorkplace номер рабочего места для удаления.
+     */
+    void deleteWorkplace(int numberWorkplace);
 
-    public void updateRoom(Room room) {
-        if (isExistRoom(room.getRoomName())) {
-            Room roomToUpdate = null;
-            for (Room rooInList : roomList) {
-                if (rooInList.getRoomName().equals(room.getRoomName())) {
-                    roomToUpdate = rooInList;
-                }
-            }
-            int indexRoom = roomList.indexOf(roomToUpdate);
-            roomList.set(indexRoom, room);
-            System.out.println("Изменение добавлено");
-        } else {
-            System.out.println("Изменение не добавлено");
-        }
-    }
+    void createRoom(String roomName, String description);
 
-    public void deleteRoom(String roomName) {
-        if (isExistRoom(roomName)) {
-            Room roomToDelete = null;
-            for (Room rooInList : roomList) {
-                if (rooInList.getRoomName().equals(roomName)) {
-                    roomToDelete = rooInList;
-                }
-            }
-            int indexRoom = roomList.indexOf(roomToDelete);
-            roomList.remove(indexRoom);
-            System.out.println("Конференц-зал удален");
-        } else {
-            System.out.println("Конференц-зал не удален");
-        }
-    }
+    Map<String, Room> getListRoom();
 
-    public boolean isExistWorkplace(int numberWorkplace) {
-        boolean result = false;
-        for (Workplace place : workplaceList) {
-            if (place.getWorkplaceNumber() == numberWorkplace) {
-                System.out.println("Рабочее место существует");
-                result = true;
-            }
-        }
-        return result;
-    }
+    void updateRoom(String roomName, String description);
 
-    public boolean isExistRoom(String roomName) {
-        boolean result = false;
-        for (Room room : roomList) {
-            if (room.getRoomName().equals(roomName)) {
-                System.out.println("Конференц-зал существует");
-                result = true;
-            }
-        }
-        return result;
-    }
+    void deleteRoom(String roomName);
+
+    /**
+     * Проверяет, существует ли рабочее место с указанным номером.
+     * @param numberWorkplace номер рабочего места.
+     * @return true-существует, false не существует.
+     */
+
+    boolean isExistWorkplace(int numberWorkplace);
+    /**
+     * Проверяет, существует ли зал с указанным именем.
+     * @param roomName имя зала.
+     * @return true-существует, false не существует.
+     */
+    boolean isExistRoom(String roomName);
 
 }
